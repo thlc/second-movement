@@ -58,8 +58,8 @@ static void clock_indicate_alarm() {
     clock_indicate(WATCH_INDICATOR_SIGNAL, movement_alarm_enabled());
 }
 
-static void clock_indicate_time_signal(stock_clock_state_t *state) {
-    clock_indicate(WATCH_INDICATOR_BELL, state->time_signal_enabled);
+static void clock_indicate_time_signal() {
+    clock_indicate(WATCH_INDICATOR_BELL, movement_signal_enabled());
 }
 
 static void clock_indicate_24h() {
@@ -291,11 +291,6 @@ static void clock_toggle_clock_mode(void) {
 
 }
 
-static void clock_toggle_time_signal(stock_clock_state_t *state) {
-    state->time_signal_enabled = !state->time_signal_enabled;
-    clock_indicate_time_signal(state);
-}
-
 void stock_clock_face_setup(uint8_t watch_face_index, void ** context_ptr) {
     (void) watch_face_index;
 
@@ -305,7 +300,6 @@ void stock_clock_face_setup(uint8_t watch_face_index, void ** context_ptr) {
         state->watch_face_index = watch_face_index;
         state->timer_active = false;
         state->timer_target_timestamp = 0;
-    state->time_signal_enabled = false;
     }
 }
 
@@ -314,7 +308,7 @@ void stock_clock_face_activate(void *context) {
 
     clock_stop_tick_tock_animation();
 
-    clock_indicate_time_signal(state);
+    clock_indicate_time_signal();
     clock_indicate_alarm();
     clock_indicate_24h();
 
@@ -328,9 +322,9 @@ movement_watch_face_advisory_t stock_clock_face_advise(void *context) {
     movement_watch_face_advisory_t retval = { 0 };
     stock_clock_state_t *state = (stock_clock_state_t *) context;
 
-    if (state->time_signal_enabled) {
-    watch_date_time_t date_time = movement_get_local_date_time();
-    retval.wants_background_task = date_time.unit.minute == 0 && date_time.unit.hour >= 9 && date_time.unit.hour <= 21;
+    if (movement_signal_enabled()) {
+        watch_date_time_t date_time = movement_get_local_date_time();
+        retval.wants_background_task = date_time.unit.minute == 0 && date_time.unit.hour >= 9 && date_time.unit.hour <= 21;
     }
 
     return retval;
@@ -372,9 +366,6 @@ bool stock_clock_face_loop(movement_event_t event, void *context) {
             state->date_time.previous = current;
 
             break;
-        case EVENT_LIGHT_LONG_PRESS:
-            clock_toggle_time_signal(state);
-            break;
         case EVENT_BACKGROUND_TASK:
             // we can be called for two reasons:
             //   - quick countdown timer expired
@@ -385,7 +376,7 @@ bool stock_clock_face_loop(movement_event_t event, void *context) {
                 clock_disable_quick_timer(state);
                 clock_display_quick_timer(state, current, false);
                 break;
-            } else if (state->time_signal_enabled) {
+            } else if (movement_signal_enabled()) {
                 movement_play_signal();
             }
         default:

@@ -81,6 +81,26 @@ static void beep_setting_advance(void) {
     }
 }
 
+static void signal_toggle_display(uint8_t subsecond) {
+    (void) subsecond;
+
+    watch_display_text_with_fallback(WATCH_POSITION_TOP_LEFT, "SIG", "SI");
+    if (movement_signal_enabled()) {
+	watch_set_indicator(WATCH_INDICATOR_BELL);
+        watch_display_text(WATCH_POSITION_BOTTOM, "   On ");
+    } else {
+	watch_clear_indicator(WATCH_INDICATOR_BELL);
+        watch_display_text(WATCH_POSITION_BOTTOM, "   OFF");
+    }
+}
+
+static void signal_toggle_advance(void) {
+    movement_set_signal_enabled(!movement_signal_enabled());
+    if (movement_signal_enabled())
+	movement_play_signal();
+    signal_toggle_display(1);
+}
+
 static void signal_setting_display(uint8_t subsecond) {
     watch_display_text_with_fallback(WATCH_POSITION_TOP_LEFT, "SIG", "SI");
     watch_display_text(WATCH_POSITION_BOTTOM, "SIGNAL");
@@ -336,6 +356,9 @@ void settings_face_setup(uint8_t watch_face_index, void ** context_ptr) {
         current_setting++;
         state->settings_screens[current_setting].display = beep_setting_display;
         state->settings_screens[current_setting].advance = beep_setting_advance;
+        current_setting++;
+        state->settings_screens[current_setting].display = signal_toggle_display;
+        state->settings_screens[current_setting].advance = signal_toggle_advance;
         current_setting++;
         state->settings_screens[current_setting].display = signal_setting_display;
         state->settings_screens[current_setting].advance = signal_setting_advance;

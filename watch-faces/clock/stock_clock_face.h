@@ -52,7 +52,6 @@ typedef struct {
     uint8_t watch_face_index;
     bool battery_low;
     bool timer_active;
-    bool time_signal_enabled;
     uint32_t timer_target_timestamp;
 } stock_clock_state_t;
 
