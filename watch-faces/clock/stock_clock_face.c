@@ -318,18 +318,6 @@ void stock_clock_face_activate(void *context) {
     state->date_time.previous.reg = 0xFFFFFFFF;
 }
 
-movement_watch_face_advisory_t stock_clock_face_advise(void *context) {
-    movement_watch_face_advisory_t retval = { 0 };
-    stock_clock_state_t *state = (stock_clock_state_t *) context;
-
-    if (movement_signal_enabled()) {
-        watch_date_time_t date_time = movement_get_local_date_time();
-        retval.wants_background_task = date_time.unit.minute == 0 && date_time.unit.hour >= 9 && date_time.unit.hour <= 21;
-    }
-
-    return retval;
-}
-
 bool stock_clock_face_loop(movement_event_t event, void *context) {
     stock_clock_state_t *state = (stock_clock_state_t *) context;
     watch_date_time_t current;
@@ -367,17 +355,12 @@ bool stock_clock_face_loop(movement_event_t event, void *context) {
 
             break;
         case EVENT_BACKGROUND_TASK:
-            // we can be called for two reasons:
-            //   - quick countdown timer expired
-            //   - hourly signal (won't ring if timer active)
             if (state->timer_active) {
                 movement_play_alarm();
                 current = movement_get_local_date_time();
                 clock_disable_quick_timer(state);
                 clock_display_quick_timer(state, current, false);
                 break;
-            } else if (movement_signal_enabled()) {
-                movement_play_signal();
             }
         default:
             return movement_default_loop_handler(event);

@@ -66,7 +66,7 @@ movement_watch_face_advisory_t stock_clock_face_advise(void *context);
     stock_clock_face_activate, \
     stock_clock_face_loop, \
     stock_clock_face_resign, \
-    stock_clock_face_advise, \
+    NULL, \
 })
 
 #endif // CLOCK_FACE_H_

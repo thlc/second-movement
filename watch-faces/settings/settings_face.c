@@ -94,6 +94,18 @@ static void signal_toggle_display(uint8_t subsecond) {
     }
 }
 
+movement_watch_face_advisory_t settings_face_advise(void *context) {
+    movement_watch_face_advisory_t retval = { 0 };
+    settings_state_t *state = (settings_state_t *) context;
+
+    if (movement_signal_enabled()) {
+        watch_date_time_t date_time = movement_get_local_date_time();
+        retval.wants_background_task = date_time.unit.minute == 0 && date_time.unit.hour >= 9 && date_time.unit.hour <= 21;
+    }
+
+    return retval;
+}
+
 static void signal_toggle_advance(void) {
     movement_set_signal_enabled(!movement_signal_enabled());
     if (movement_signal_enabled())
@@ -434,6 +446,10 @@ bool settings_face_loop(movement_event_t event, void *context) {
             break;
         case EVENT_TIMEOUT:
             movement_move_to_page(0);
+            break;
+        case EVENT_BACKGROUND_TASK:
+            if (movement_signal_enabled())
+                movement_play_signal();
             break;
         default:
             return movement_default_loop_handler(event);
