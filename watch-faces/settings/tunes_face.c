@@ -82,8 +82,13 @@ static void _tunes_face_set_active_tune(tunes_face_state_t *state) {
 }
 
 static void _tunes_face_play_tune(tunes_face_state_t *state) {
+    uint8_t* static_tune = NULL;
+    uint8_t* dynamic_tune = NULL;
+
     if (state->mode == TUNES_FACE_SIGNAL_MODE) {
-        movement_play_sequence(signal_tunes[state->signal_tune_index], 1);
+        static_tune = signal_tunes[state->signal_tune_index];
+        dynamic_tune = signal_dynamic_tunes[state->signal_tune_index]();
+        movement_play_sequence(static_tune ? static_tune : dynamic_tune, 1);
     } else {
         movement_play_sequence(alarm_tunes[state->alarm_tune_index], 1);
     }
