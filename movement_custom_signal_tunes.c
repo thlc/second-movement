@@ -713,11 +713,11 @@ static const int8_t signal_tune_among_us[] = {
 // IX / X / XI / XII / I / II / III / IV / V / VI / VII / VIII / IX
 
 #define NOTE_ROMAN_I BUZZER_NOTE_C8, 5
-#define NOTE_ROMAN_V BUZZER_NOTE_C8, 10
-#define NOTE_ROMAN_X BUZZER_NOTE_D8, 10
-#define NOTE_ROMAN_R BUZZER_NOTE_REST, 6
+#define NOTE_ROMAN_V BUZZER_NOTE_C8, 18
+#define NOTE_ROMAN_X BUZZER_NOTE_D8, 18
+#define NOTE_ROMAN_R BUZZER_NOTE_REST, 10
 
-static const char* signal_tune_roman_name = "ROMAN";
+static const char* signal_tune_roman_name = "RoMMaN";
 
 int8_t* signal_dynamic_tune_roman(void) {
     static const int8_t tunes[12][16] = {
@@ -1020,7 +1020,10 @@ int8_t* movement_custom_signal_tunes_get_active_tune(void) {
         return signal_tunes[active_signal_tune_index];
     }
     else {
-        return signal_dynamic_tunes[active_signal_tune_index]();
+        if (signal_dynamic_tunes[active_signal_tune_index])
+            return signal_dynamic_tunes[active_signal_tune_index]();
+        else
+            return default_signal_tune;
     }
 
 }

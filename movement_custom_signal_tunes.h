@@ -36,9 +36,8 @@ extern int8_t* (*signal_dynamic_tunes[])(void);
 extern int8_t* signal_tune;
 
 #define MOVEMENT_N_SIGNAL_TUNES 41
+#define SIGNAL_TUNE_ROMAN
 
 int8_t* movement_custom_signal_tunes_get_active_tune(void);
 extern const int8_t* signal_tunes[MOVEMENT_N_SIGNAL_TUNES];
 extern const char* signal_tunes_names[MOVEMENT_N_SIGNAL_TUNES];
-
-#define SIGNAL_TUNE_ROMAN yes
